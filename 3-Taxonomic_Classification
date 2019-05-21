@@ -1,0 +1,17 @@
+#Download Greengenes or Silva or both
+wget -O "gg-13-8-99-515-806-nb-classifier.qza" "https://data.qiime2.org/2018.2/common/gg-13-8-99-515-806-nb-classifier.qza"
+wget -O "silva-119-99-515-806-nb-classifier.qza" "https://data.qiime2.org/2018.2/common/silva-119-99-515-806-nb-classifier.qza"
+
+#Classifiy!
+qiime feature-classifier classify-sklearn --i-classifier gg-13-8-99-515-806-nb-classifier.qza --i-reads dada2-rep-seqs.qza --o-classification dada2-taxonomy-gg.qza --verbose --p-n-jobs 2
+qiime feature-classifier classify-sklearn --i-classifier silva-119-99-515-806-nb-classifier.qza --i-reads dada2-rep-seqs.qza --o-classification dada2-taxonomy-silva.qza --verbose --p-n-jobs 2
+
+#Tabulate the analysis so we can vizualize the taxonomic diversity of samples:
+qiime metadata tabulate --m-input-file dada2-taxonomy-gg.qza --o-visualization dada2-taxonomy-gg.qzv
+qiime metadata tabulate --m-input-file dada2-taxonomy-silva.qza --o-visualization dada2-taxonomy-silva.qzv
+
+#Plot Figures
+qiime taxa barplot --i-table dada2-table.qza --i-taxonomy dada2-taxonomy-gg.qza --m-metadata-file metadata.tsv --o-visualization dada2-taxa-bar-plots-gg.qzv
+
+
+qiime taxa barplot --i-table dada2-table.qza --i-taxonomy dada2-taxonomy-silva.qza --m-metadata-file metadata.tsv --o-visualization dada2-taxa-bar-plots-silva.qzv
