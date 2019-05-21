@@ -1,0 +1,12 @@
+#If you choose to rarify use the following:
+qiime diversity core-metrics-phylogenetic --i-phylogeny dada2-rooted-tree.qza --i-table dada2-table.qza --p-sampling-depth 1000 --m-metadata-file mapping.tsv --output-dir 1000-dada2-metrics --verbose --p-n-jobs 2
+
+
+#Diversity Metrics
+qiime diversity alpha-group-significance --i-alpha-diversity 1000-dada2-metrics/faith_pd_vector.qza --m-metadata-file mapping.tsv --o-visualization metrics/faith-pd-group-significance.qzv
+
+qiime diversity alpha-group-significance --i-alpha-diversity 1000-dada2-metrics/evenness_vector.qza --m-metadata-file mapping.tsv --o-visualization metrics/evenness-group-significance.qzv
+
+qiime diversity alpha-group-significance --i-alpha-diversity 1000-dada2-metrics/shannon_vector.qza --m-metadata-file mapping.tsv --o-visualization metrics/shannon-group-significance.qzv
+
+qiime diversity alpha-group-significance --i-alpha-diversity 1000-dada2-metrics/observed_otus_vector.qza --m-metadata-file mapping.tsv --o-visualization metrics/otu-significance.qzv
