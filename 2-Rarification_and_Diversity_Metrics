@@ -1,8 +1,8 @@
-#If you choose to rarify use the following:
+#If you choose to rarify use the following (choose your sampling depthafter '--p-sampling depth'):
 qiime diversity core-metrics-phylogenetic --i-phylogeny dada2-rooted-tree.qza --i-table dada2-table.qza --p-sampling-depth 1000 --m-metadata-file mapping.tsv --output-dir 1000-dada2-metrics --verbose --p-n-jobs 2
 
 
-#Diversity Metrics
+#Alpha Diversity Metrics
 qiime diversity alpha-group-significance --i-alpha-diversity 1000-dada2-metrics/faith_pd_vector.qza --m-metadata-file mapping.tsv --o-visualization metrics/faith-pd-group-significance.qzv
 
 qiime diversity alpha-group-significance --i-alpha-diversity 1000-dada2-metrics/evenness_vector.qza --m-metadata-file mapping.tsv --o-visualization metrics/evenness-group-significance.qzv
@@ -10,3 +10,13 @@ qiime diversity alpha-group-significance --i-alpha-diversity 1000-dada2-metrics/
 qiime diversity alpha-group-significance --i-alpha-diversity 1000-dada2-metrics/shannon_vector.qza --m-metadata-file mapping.tsv --o-visualization metrics/shannon-group-significance.qzv
 
 qiime diversity alpha-group-significance --i-alpha-diversity 1000-dada2-metrics/observed_otus_vector.qza --m-metadata-file mapping.tsv --o-visualization metrics/otu-significance.qzv
+
+#Beta Diversity
+for METRIC in "unweighted_unifrac" "weighted_unifrac" "jaccard" "bray_curtis"; do
+	
+	qiime diversity beta-group-significance --i-distance-matrix 1000-dada2-metrics/${METRIC}_distance_matrix.qza --m-metadata-file metadata.tsv   --m-metadata-column Sample --o-visualization 1000-dada2-metrics/${METRIC}-sample-significance.qzv --p-pairwise
+
+done
+
+#Rarefaction Plot
+qiime diversity alpha-rarefaction --i-table dada2-table.qza --i-phylogeny dada2-rooted-tree.qza --p-max-depth 1000 --m-metadata-file metadata.tsv --o-visualization dada2-alpha-rarefaction.qzv --p-steps 20 --verbose
