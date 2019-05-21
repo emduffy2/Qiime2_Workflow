@@ -1,0 +1,37 @@
+#Import data into Qiime2
+qiime tools import --type 'SampleData[PairedEndSequencesWithQuality]' --input-path manifest.csv --output-path study.qza --source-format PairedEndFastqManifestPhred33
+qiime tools peek study.qza
+qiime demux summarize --i-data study.qza --o-visualization study.qzv
+
+##Can pick OTUs with DADA2 or DEBLUR 
+
+#DADA2
+qiime dada2 denoise-paired --i-demultiplexed-seqs study.qza --o-table dada2-table --o-representative-sequences dada2-rep-seqs --p-trim-left-f 0 --p-trim-left-r 0 --p-trunc-len-f 150 --p-trunc-len-r 150 --p-n-threads 2 --verbose --o-denoising-stats dada2_stats
+
+#DEBLUR
+qiime deblur denoise-16S --i-demultiplexed-seqs study.qza --p-trim-length 150 --o-representative-sequences deblur-rep-seqs.qza --o-table deblur-table.qza --p-sample-stats --o-stats deblur-stats.qza\n
+
+##Visualize Stats
+#DADA2
+qiime dada2 visualize-stats --i-dada2-stats dada2_stats.qza --o-visualization dada2-stats.qzv
+
+#DEBLUR
+qiime deblur visualize-stats --i-deblur-stats deblur-stats.qza --o-visualization deblur-stats.qzv
+
+#Will focus on DADA2 resluts for the remainer of the workflow but just know you can use either
+
+##More stats on DADA2 output
+qiime feature-table summarize --i-table dada2-table.qza --o-visualization dada2-table.qzv --m-sample-metadata-file mapping.tsv 
+qiime feature-table tabulate-seqs --i-data dada2-rep-seqs.qza --o-visualization dada2-rep-seqs.qzv
+
+##Phylogenetic tree (to calc beta diversity)
+qiime alignment mafft --i-sequences dada2-rep-seqs.qza --o-alignment dada2-aligned-rep-seqs.qza --verbose --p-n-threads 2
+
+#Mask the alignment for regions that are uninformative:
+qiime alignment mask --i-alignment dada2-aligned-rep-seqs.qza --o-masked-alignment dada2-masked-aligned-rep-seqs.qza --verbose
+
+#Make a phylogenetic tree from the aligned region:
+qiime phylogeny fasttree --i-alignment dada2-masked-aligned-rep-seqs.qza --o-tree dada2-unrooted-tree.qza --verbose --p-n-threads 2
+
+#Root the phylogenetic tree with the midpoint (just one of many options):
+qiime phylogeny midpoint-root --i-tree dada2-unrooted-tree.qza --o-rooted-tree dada2-rooted-tree.qza
